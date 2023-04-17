@@ -22,49 +22,8 @@ main:
 	movq	%rsp, %rbp
 
 
-	movq	$9, %r8
-	movq	$2, %r9
-	imulq	%r8, %r9
+	.comm	a,8,8
 	movq	$2, %r8
-	movq	$44, %r10
-	imulq	%r8, %r10
-	addq	%r9, %r10
-	movq	$33, %r8
-	movq	$3, %r9
-	movq	%r8, %rax
-	cqo
-	idivq	%r9
-	movq	%rax, %r8
-	subq	%r8, %r10
-	movq	$9, %r8
-	addq	%r10, %r8
-	movq	$6, %r9
-	movq	$2, %r10
-	movq	%r9, %rax
-	cqo
-	idivq	%r10
-	movq	%rax, %r9
-	subq	%r9, %r8
-	movq	%r8, %rdi
-	call	printint
-	movq	$9, %r8
-	movq	$3, %r9
-	imulq	%r8, %r9
-	movq	%r9, %rdi
-	call	printint
-	movq	$9, %r8
-	movq	$4, %r9
-	imulq	%r8, %r9
-	movq	%r9, %rdi
-	call	printint
-	movq	$8, %r8
-	movq	$8, %r9
-	imulq	%r8, %r9
-	movq	$6, %r8
-	addq	%r9, %r8
-	movq	%r8, %rdi
-	call	printint
-
-	movl	$0, %eax
-	popq	%rbp
-	ret
+	movq	%r8, a(%rip)
+	.comm	c,8,8
+	movq	$2, %r8

@@ -25,12 +25,10 @@ main:
 	movq	$2, %r8
 	movq	$2, %r9
 	addq	%r8, %r9
-	movq	$2, %r8
-	addq	%r8, %r9
-	movq	$2, %r8
-	addq	%r8, %r9
-	movq	$1, %r8
-	subq	%r9, %r8
+	movq	%r9, joao(%rip)
+
+	movq	%r9, %rdi
+	call	printint
 
 	movl	$0, %eax
 	popq	%rbp

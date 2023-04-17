@@ -9,11 +9,10 @@ fn main() {
     let source_path = &args[1];
     let source = fs::read_to_string(source_path).unwrap(); 
 
-    let tokens = lexer::lex(&source);
+    let (tokens, mut table) = lexer::lex(&source);
 
     let parsed = parser::parse(&tokens);
 
     println!("{:?}", parsed);
-
-    let _l = interpreter::interpret(&parsed);
+    let _l = interpreter::interpret(&parsed, &mut table);
 }
