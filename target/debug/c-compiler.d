@@ -1,1 +1,0 @@
-/home/j/Desktop/code/rust/projects/c-compiler/target/debug/c-compiler: /home/j/Desktop/code/rust/projects/c-compiler/src/lexer/mod.rs /home/j/Desktop/code/rust/projects/c-compiler/src/main.rs /home/j/Desktop/code/rust/projects/c-compiler/src/parser/mod.rs
