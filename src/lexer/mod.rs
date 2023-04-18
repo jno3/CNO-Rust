@@ -22,11 +22,17 @@ pub enum Word {
     LowerThan,
     LowerEquals,
     GreaterEquals,
+    If,
+    OpenParenthesis,
+    CloseParenthesis,
+    OpenBrackets,
+    CloseBrackets,
 }
 
 #[derive(Debug)]
 pub enum Token {
     Symbol(Word, u8),
+    ObligatorySymbol(Word, char, bool),
     Value(Final),
 }
 
@@ -46,25 +52,9 @@ fn lex_helper(helper: &mut String, tokens: &mut Vec<Token>, table: &mut Table) {
         "int" => {
             tokens.push(Token::Symbol(Word::Int, 0));
         }
-        "==" => {
-            tokens.push(Token::Symbol(Word::EqualsEquals, 1));
+        "if" => {
+            tokens.push(Token::Symbol(Word::If, 0));
         }
-        "!=" => {
-            tokens.push(Token::Symbol(Word::DiffEquals, 1));
-        }
-        "<=" => {
-            tokens.push(Token::Symbol(Word::LowerEquals, 1));
-        }
-        ">=" => {
-            tokens.push(Token::Symbol(Word::GreaterEquals, 1));
-        }
-        "=" => {
-            tokens.push(Token::Symbol(Word::Equals, 0));
-        }
-        "<" => {
-            tokens.push(Token::Symbol(Word::LowerThan, 1));
-        }
-        ">" => tokens.push(Token::Symbol(Word::GreaterThan, 1)),
         _ => {
             helper_match = false;
         }
@@ -80,7 +70,6 @@ fn lex_helper(helper: &mut String, tokens: &mut Vec<Token>, table: &mut Table) {
     if name_match {
         let i;
         if !table.symbols.contains(&helper) {
-            println!("{}", helper);
             i = table.symbols.len();
             table.symbols.push(helper.clone());
             table.status.push(false);
@@ -134,6 +123,14 @@ pub fn lex(source: &String) -> (Vec<Token>, Table) {
                 lex_helper(&mut helper, &mut tokens, &mut table);
                 tokens.push(Token::Symbol(Word::Semicolon, 0));
             }
+            '(' => {
+                lex_helper(&mut helper, &mut tokens, &mut table);
+                tokens.push(Token::ObligatorySymbol(Word::OpenParenthesis, c, false));
+            }
+            ')' => {
+                lex_helper(&mut helper, &mut tokens, &mut table);
+                tokens.push(Token::ObligatorySymbol(Word::CloseParenthesis, c, true));
+            }
             '=' => {
                 let next = source.chars().nth(index + 1).unwrap();
                 let prev = source.chars().nth(index - 1).unwrap();
@@ -183,7 +180,6 @@ pub fn lex(source: &String) -> (Vec<Token>, Table) {
         }
     }
     lex_helper(&mut helper, &mut tokens, &mut table);
-    println!("{}", helper);
 
     (tokens, table)
 }

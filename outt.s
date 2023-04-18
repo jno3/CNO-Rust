@@ -25,34 +25,29 @@ main:
 	.comm	a,8,8
 	movq	$2, %r8
 	movq	$2, %r9
-	cmpq	%r9, %r8
-	sete	%r9b
-	andq	$255,%r9
-	movq	%r9, a(%rip)
-	.comm	b,8,8
-	movq	$10, %r8
-	movq	%r8, b(%rip)
-	.comm	c,8,8
-	movq	b(%rip), %r8
-	movq	$3, %r9
-	imulq	%r8, %r9
-	movq	%r9, c(%rip)
-	.comm	d,8,8
-	movq	c(%rip), %r8
+	movq	$2, %r10
+	addq	%r9, %r10
+	movq	$5, %r9
+	movq	$8, %r11
+	imulq	%r9, %r11
 	movq	$2, %r9
-	movq	%r8, %rax
+	movq	%r11, %rax
 	cqo
 	idivq	%r9
-	movq	%rax, %r8
-	movq	%r8, d(%rip)
-	movq	d(%rip), %r8
-	movq	d(%rip), %r9
-	movq	$15, %r10
-	cmpq	%r10, %r9
-	sete	%r10b
-	andq	$255,%r10
-	movq	%r10, d(%rip)
-	movq	d(%rip), %r9
+	movq	%rax, %r11
+	subq	%r11, %r10
+	imulq	%r8, %r10
+	movq	%r10, a(%rip)
+	movq	a(%rip), %r8
+	movq	$3, %r9
+	addq	%r8, %r9
+	movq	$4, %r8
+	movq	$1, %r10
+	addq	%r8, %r10
+	movq	%r9, %rax
+	cqo
+	idivq	%r10
+	movq	%rax, %r9
 	movq	%r9, %rdi
 	call	printint
 

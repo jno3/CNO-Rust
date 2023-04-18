@@ -35,30 +35,53 @@ fn _parse_helper(tokens: &Vec<Token>, index: &mut usize, len: &usize) {
 pub fn parse(tokens: &Vec<Token>) -> Vec<&Token> {
     let mut _index = 0;
     let _len = tokens.len() - 1;
-    // parse_helper(&tokens, &mut index, &len);
     reverse_polish(&tokens)
 }
 
 fn reverse_polish_helper<'a>(
     expression: &mut Vec<&'a Token>,
     operands: &mut Vec<&'a Token>,
-    token: &Token,
+    token: &'a Token,
 ) {
     let mut finished = false;
-    if let Token::Symbol(_, v) = token {
-        while !finished {
-            if operands.is_empty() {
-                finished = true;
-                continue;
+    while !finished {
+        if operands.is_empty() {
+            finished = true;
+            continue;
+        }
+        let top = operands.last().unwrap();
+        match top {
+            Token::Symbol(_, vv) => {
+                match token {
+                    Token::Symbol(_, v) => {
+                        println!("sym {:?}", token);
+                        if vv >= v {
+                            let last = operands.pop().unwrap();
+                            expression.push(last);
+                        } else {
+                            finished = true;
+                        }
+                    }
+                    Token::ObligatorySymbol(_, _, _) => {
+                        let last = operands.pop().unwrap();
+                        expression.push(last);
+                    }
+                    _ => (),
+                };
             }
-            if let Token::Symbol(_, vv) = operands.last().unwrap() {
-                if v <= vv {
-                    let last = operands.pop().unwrap();
-                    expression.push(last);
-                } else {
+            Token::ObligatorySymbol(_, opening, _) => match token {
+                Token::Symbol(..) => {
                     finished = true;
                 }
-            }
+                Token::ObligatorySymbol(_, closing, _) => {
+                    if (*opening == '(' && *closing == ')') || (*opening == '{' && *closing == '}') {
+                        operands.pop();
+                        finished = true;
+                    }
+                }
+                _ => (),
+            },
+            _ => (),
         }
     }
 }
@@ -68,24 +91,45 @@ fn reverse_polish(tokens: &Vec<Token>) -> Vec<&Token> {
     let mut operands: Vec<&Token> = Vec::new();
 
     for token in tokens {
-        if let Token::Symbol(s, v) = token {
-            if operands.is_empty() {
-                operands.push(token);
-            } else {
-                if let Token::Symbol(_, vv) = operands.last().unwrap() {
-                    if v > vv {
-                        operands.push(token);
-                    } else {
-                        reverse_polish_helper(&mut expression, &mut operands, token);
-                        match s {
-                            Word::Semicolon => (),
-                            _ => operands.push(token),
+        match token {
+            Token::Symbol(s, v) => {
+                if operands.is_empty() {
+                    operands.push(token);
+                } else {
+                    let top = operands.last().unwrap();
+                    match top {
+                        Token::Symbol(_, vv) => {
+                            if vv < v {
+                                operands.push(token);
+                            } else {
+                                reverse_polish_helper(&mut expression, &mut operands, token);
+                                match s {
+                                    Word::Semicolon => (),
+                                    _ => {
+                                        operands.push(token);
+                                    }
+                                }
+                            }
+                        }
+                        Token::ObligatorySymbol(..) => {
+                            operands.push(token);
+                        }
+                        _ => {
+                            operands.push(token);
                         }
                     }
                 }
             }
-        } else {
-            expression.push(token);
+            Token::ObligatorySymbol(_, _, close) => {
+                if *close {
+                    reverse_polish_helper(&mut expression, &mut operands, token);
+                } else {
+                    operands.push(token);
+                }
+            }
+            Token::Value(..) => {
+                expression.push(token);
+            }
         }
     }
 

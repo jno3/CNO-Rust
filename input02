@@ -1,9 +1,2 @@
-int a = 2 ==2;
-int b = 10;
-int c=b*3;
-int d;
-d 
-= c/2
-;
-d = d ==15;
-print d;
+int a = (2*(2+2-(5*8)/2));
+print (a + 3)/(4+1);

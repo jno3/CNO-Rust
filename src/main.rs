@@ -11,8 +11,9 @@ fn main() {
 
     let (tokens, mut table) = lexer::lex(&source);
 
+    println!("{:?}\n",tokens);
+
     let parsed = parser::parse(&tokens);
 
-    println!("{:?}", parsed);
     let _l = interpreter::interpret(&parsed, &mut table);
 }
