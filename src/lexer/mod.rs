@@ -62,11 +62,9 @@ fn lex_helper(helper: &mut String, tokens: &mut Vec<Token>, table: &mut Table) {
             tokens.push(Token::Symbol(Word::Equals, 0));
         }
         "<" => {
-            tokens.push(Token::Symbol(Word::LowerThan, 1));            
+            tokens.push(Token::Symbol(Word::LowerThan, 1));
         }
-        ">" => {
-            tokens.push(Token::Symbol(Word::GreaterThan, 1))
-        }
+        ">" => tokens.push(Token::Symbol(Word::GreaterThan, 1)),
         _ => {
             helper_match = false;
         }
@@ -106,7 +104,6 @@ fn lex_helper(helper: &mut String, tokens: &mut Vec<Token>, table: &mut Table) {
 
 pub fn lex(source: &String) -> (Vec<Token>, Table) {
     let mut tokens: Vec<Token> = Vec::new();
-    let mut sign_helper = '-';
     let mut table = Table {
         symbols: Vec::new(),
         status: Vec::new(),
@@ -114,7 +111,8 @@ pub fn lex(source: &String) -> (Vec<Token>, Table) {
     };
 
     let mut helper = String::new();
-    for c in source.chars() {
+    let source_chars = source.chars();
+    for (index, c) in source_chars.enumerate() {
         match c {
             '+' => {
                 lex_helper(&mut helper, &mut tokens, &mut table);
@@ -137,22 +135,46 @@ pub fn lex(source: &String) -> (Vec<Token>, Table) {
                 tokens.push(Token::Symbol(Word::Semicolon, 0));
             }
             '=' => {
+                let next = source.chars().nth(index + 1).unwrap();
+                let prev = source.chars().nth(index - 1).unwrap();
                 lex_helper(&mut helper, &mut tokens, &mut table);
-                tokens.push(Token::Symbol(Word::Equals, 0));
+                if next == '=' {
+                    tokens.push(Token::Symbol(Word::EqualsEquals, 1));
+                } else {
+                    if prev != '=' && prev != '<' && prev != '>' && prev != '!' {
+                        tokens.push(Token::Symbol(Word::Equals, 0));
+                    }
+                }
             }
             '<' => {
+                let next = source.chars().nth(index + 1).unwrap();
                 lex_helper(&mut helper, &mut tokens, &mut table);
-                tokens.push(Token::Symbol(Word::LowerThan, 1));
+                if next == '=' {
+                    tokens.push(Token::Symbol(Word::LowerEquals, 1));
+                } else {
+                    tokens.push(Token::Symbol(Word::LowerThan, 0));
+                }
             }
             '>' => {
+                let next = source.chars().nth(index + 1).unwrap();
                 lex_helper(&mut helper, &mut tokens, &mut table);
-                tokens.push(Token::Symbol(Word::GreaterThan, 1));
+                if next == '=' {
+                    tokens.push(Token::Symbol(Word::GreaterEquals, 1));
+                } else {
+                    tokens.push(Token::Symbol(Word::GreaterThan, 0));
+                }
             }
             '!' => {
-
+                let next = source.chars().nth(index + 1).unwrap();
+                lex_helper(&mut helper, &mut tokens, &mut table);
+                if next == '=' {
+                    tokens.push(Token::Symbol(Word::DiffEquals, 1));
+                }
             }
             ' ' => {
-                lex_helper(&mut helper, &mut tokens, &mut table);
+                if !helper.is_empty() {
+                    lex_helper(&mut helper, &mut tokens, &mut table);
+                }
             }
             '\n' => (),
             _ => {
